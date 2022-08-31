@@ -20,18 +20,18 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-      env:
-         CI: ""
+#    - uses: actions/checkout@v3
+#    - name: Use Node.js ${{ matrix.node-version }}
+#      uses: actions/setup-node@v3
+#      with:
+#        node-version: ${{ matrix.node-version }}
+#        cache: 'npm'
+#    - run: npm ci
+#    - run: npm run build --if-present
+#      env:
+#         CI: ""
  
-    - name: executing remote ssh commands using password
+    - name: Test SSH
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.DO1_SSH_HOST }}
