@@ -39,6 +39,8 @@ jobs:
         key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
         script:  |
+          whoami
+          pwd
           ls -al
           pm2 list
           uname -a
