@@ -14,9 +14,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 16.x]
+#    strategy:
+#      matrix:
+#        node-version: [12.x, 14.x, 16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -38,5 +38,9 @@ jobs:
         username: ${{ secrets.DO1_SSH_USER }}
         key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
-        script: whoami
+        script:  |
+          ls -al
+          ps2 list
+          uname -a
+          date
          
