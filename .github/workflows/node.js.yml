@@ -40,7 +40,7 @@ jobs:
         port: ${{ secrets.DO1_SSH_PORT }}
         script:  |
           ls -al
-          ps2 list
+          pm2 list
           uname -a
           date
          
