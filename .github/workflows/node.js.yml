@@ -30,3 +30,13 @@ jobs:
     - run: npm run build --if-present
       env:
          CI: ""
+ 
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DO1_SSH_HOST }}
+        username: ${{ secrets.DO1_SSH_USER }}
+        key: ${{ secrets.DO1_PRIVATE_KEY }}
+        port: ${{ secrets.DO1_SSH_PORT }}
+        script: whoami
+         
