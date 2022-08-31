@@ -39,6 +39,7 @@ jobs:
         key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
         script:  |
+          echo $PATH
           whoami
           pwd
           ls -al
