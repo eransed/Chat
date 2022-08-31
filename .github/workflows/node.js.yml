@@ -36,7 +36,7 @@ jobs:
       with:
         host: ${{ secrets.DO1_SSH_HOST }}
         username: ${{ secrets.DO1_SSH_USER }}
-        key: ${{ secrets.DO1_PRIVATE_KEY }}
+        key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
         script: whoami
          
