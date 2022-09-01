@@ -30,7 +30,7 @@ jobs:
         key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
         script: |
-          pm2 del 0
+          pm2 del server
           
     - name: Copy build assets to server
       uses: wlixcc/SFTP-Deploy-Action@v1.2.4
@@ -40,7 +40,7 @@ jobs:
           ssh_private_key: ${{ secrets.DO1_SSH_PRIVATE_KEY_PEM }}
           local_path: './*'
           remote_path: ' ${{ secrets.DO1_REMOTE_BUILD_PATH }}'
-          sftpArgs: '-o ConnectTimeout=5'
+          sftpArgs: '-o ConnectTimeout=10'
 
     - name: Start server
       uses: appleboy/ssh-action@master
