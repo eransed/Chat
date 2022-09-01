@@ -24,7 +24,7 @@ jobs:
     - name: deploy build folder to server
       uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
-          username: ${{ secrets.DO1_SSH_USER }}
+          username: '${{ secrets.DO1_SSH_USER }}'
           server: '${{ secrets.DO1_SSH_HOST }}'
           ssh_private_key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
           local_path: './build/*'
