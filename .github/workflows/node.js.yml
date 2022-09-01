@@ -42,7 +42,7 @@ jobs:
           pm2 l
           pm2 del 0
           rm -rf chat
-          git clone git@github.com:eransed/chat.git
+          git clone https://github.com/eransed/chat.git
           cd chat
           pm2 start src/server.js
           pm2 l
