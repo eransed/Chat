@@ -26,7 +26,7 @@ jobs:
       with:
           username: '${{ secrets.DO1_SSH_USER }}'
           server: '${{ secrets.DO1_SSH_HOST }}'
-          ssh_private_key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
+          ssh_private_key: ${{ secrets.DO1_SSH_PRIVATE_KEY_PEM }}
           local_path: './build/*'
           remote_path: ' ${{ secrets.DO1_REMOTE_BUILD_PATH }}/build'
           sftpArgs: '-o ConnectTimeout=5'
