@@ -41,9 +41,10 @@ jobs:
         script: |
           pm2 l
           pm2 del 0
-          rm -rf chat
-          git clone https://github.com/eransed/chat.git
           cd chat
+          rm -rf node_modules
+          git pull
+          npm i
           pm2 start src/server.js
           pm2 l
          
