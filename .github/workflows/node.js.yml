@@ -21,7 +21,7 @@ jobs:
     - run: npm run build --if-present
       env:
          CI: ""
-    - name: deploy build folder to server
+    - name: Copy build assets to server
       uses: wlixcc/SFTP-Deploy-Action@v1.2.4
       with:
           username: '${{ secrets.DO1_SSH_USER }}'
@@ -31,18 +31,19 @@ jobs:
           remote_path: ' ${{ secrets.DO1_REMOTE_BUILD_PATH }}/build'
           sftpArgs: '-o ConnectTimeout=5'
 
-    - name: Test SSH
+    - name: Restart server
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.DO1_SSH_HOST }}
         username: ${{ secrets.DO1_SSH_USER }}
         key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
-        script:  |
-          cd repos/Chat
-          git pull
+        script: |
           pm2 l
           pm2 del 0
+          rm -rf chat
+          git clone git@github.com:eransed/chat.git
+          cd chat
           pm2 start src/server.js
           pm2 l
          
