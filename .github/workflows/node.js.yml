@@ -21,17 +21,8 @@ jobs:
     - run: npm run build --if-present
       env:
          CI: ""
-    - name: Copy build assets to server
-      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-      with:
-          username: '${{ secrets.DO1_SSH_USER }}'
-          server: '${{ secrets.DO1_SSH_HOST }}'
-          ssh_private_key: ${{ secrets.DO1_SSH_PRIVATE_KEY_PEM }}
-          local_path: './build/*'
-          remote_path: ' ${{ secrets.DO1_REMOTE_BUILD_PATH }}/build'
-          sftpArgs: '-o ConnectTimeout=5'
-
-    - name: Restart server
+         
+    - name: Stop server
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.DO1_SSH_HOST }}
@@ -39,12 +30,26 @@ jobs:
         key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
         script: |
-          pm2 l
           pm2 del 0
-          cd chat
-          rm -rf node_modules
-          git pull
-          npm i
-          pm2 start src/server.js
+          
+    - name: Copy build assets to server
+      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+      with:
+          username: '${{ secrets.DO1_SSH_USER }}'
+          server: '${{ secrets.DO1_SSH_HOST }}'
+          ssh_private_key: ${{ secrets.DO1_SSH_PRIVATE_KEY_PEM }}
+          local_path: './*'
+          remote_path: ' ${{ secrets.DO1_REMOTE_BUILD_PATH }}'
+          sftpArgs: '-o ConnectTimeout=5'
+
+    - name: Start server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DO1_SSH_HOST }}
+        username: ${{ secrets.DO1_SSH_USER }}
+        key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.DO1_SSH_PORT }}
+        script: |
+          pm2 start chat/src/server.js
           pm2 l
          
