@@ -38,8 +38,8 @@ jobs:
           username: '${{ secrets.DO1_SSH_USER }}'
           server: '${{ secrets.DO1_SSH_HOST }}'
           ssh_private_key: ${{ secrets.DO1_SSH_PRIVATE_KEY_PEM }}
-          local_path: './*'
-          remote_path: ' ${{ secrets.DO1_REMOTE_BUILD_PATH }}'
+          local_path: './build/*'
+          remote_path: ' ${{ secrets.DO1_REMOTE_BUILD_PATH }}/build'
           sftpArgs: '-o ConnectTimeout=10'
 
     - name: Start server
@@ -50,6 +50,11 @@ jobs:
         key: ${{ secrets.DO1_SSH_PRIVATE_KEY }}
         port: ${{ secrets.DO1_SSH_PORT }}
         script: |
-          pm2 start chat/src/server.js
+          cd chat
+          git pull
+          npm i
+          pm2 start src/server.js
+          sleep 5
+          pm2 logs --lines 200
           pm2 l
          
