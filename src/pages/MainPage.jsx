@@ -16,7 +16,7 @@ import SettingsMenu from "../components/SettingsMenu"
 
 //Material UI
 import Grid from "@mui/material/Grid"
-import WestIcon from "@mui/icons-material/West"
+import Tooltip from "@mui/material/Tooltip"
 import EastIcon from "@mui/icons-material/East"
 import CommentIcon from "@mui/icons-material/Comment"
 import SettingsIcon from "@mui/icons-material/Settings"
@@ -27,6 +27,7 @@ import TuneIcon from "@mui/icons-material/Tune"
 import LightModeIcon from "@mui/icons-material/LightMode"
 import DarkModeIcon from "@mui/icons-material/DarkMode"
 import Badge from "@mui/material/Badge"
+import PeopleIcon from "@mui/icons-material/People"
 
 //Contexts
 import { DarkModeContext } from "../contexts/themeContext"
@@ -41,7 +42,8 @@ const MainPage = () => {
   const [openDialog, setOpenDialog] = useState(false)
   const [newMessages, setNewMessages] = useState([])
   const [notifyOthers, setNotifyOthers] = useState(false)
-  const [newReaction, setNewReaction] = useState([])
+  const [newReactions, setNewReactions] = useState([])
+  const [users, setUsers] = useState([])
   const [pageTitle, setPageTitle] = useState(document.title)
   const [play, { stop }] = useSound(ChatFx2)
 
@@ -75,7 +77,17 @@ const MainPage = () => {
       let msgObj = JSON.parse(event.data)
       console.log("msgObj ", msgObj)
       if (msgObj.newReaction) {
-        setNewReaction(msgObj)
+        setNewReactions(msgObj)
+        return
+      }
+
+      if (msgObj.requestedOnlineUsers) {
+        setUsers([])
+        msgObj.onlineUsers.map((user) => {
+          setUsers((previous) => {
+            return [...previous, user]
+          })
+        })
         return
       }
 
@@ -131,23 +143,24 @@ const MainPage = () => {
   }
 
   useEffect(() => {
-    if (newReaction) {
+    if (newReactions) {
       const foundMessage = messages.find(
-        (old) => old.srvAckMid === newReaction.srvAckMid
+        (old) => old.srvAckMid === newReactions.srvAckMid
       )
+
       const update = messages.map((msg) => {
         if (msg.srvAckMid === foundMessage.srvAckMid) {
-          return { ...msg, reactions: newReaction.reactions }
+          return { ...msg, reactions: newReactions.reactions }
         }
         return msg
       })
 
       setMessages(update)
-      if (newReaction.cid !== clientId) {
+      if (newReactions.cid !== clientId) {
         playSound()
       }
     }
-  }, [newReaction, setNewReaction])
+  }, [newReactions, setNewReactions])
 
   useEffect(() => {
     if (newMessages.length > 0) {
@@ -222,6 +235,8 @@ const MainPage = () => {
       cid: clientId,
       color: textColor[colorPicker()],
       mid: messages.length,
+      onlineUsers: [],
+      requestedOnlineUsers: false,
       rxDate: new Date(),
       srvAck: false,
       text: message,
@@ -254,6 +269,23 @@ const MainPage = () => {
     sock.send(JSON.stringify(reaction))
   }
 
+  const handleToggleDialog = () => {
+    setOpenDialog((previous) => !previous)
+  }
+
+  const usersOnline = () => {
+    return (
+      <>
+        <h3>Users Online</h3>
+        <span>
+          {users.map((user, index) => (
+            <p key={index}>{user.name}</p>
+          ))}
+        </span>
+      </>
+    )
+  }
+
   return (
     <>
       <AppBar
@@ -271,25 +303,43 @@ const MainPage = () => {
           spacing={1}
           style={{ marginTop: "0.7em", marginBottom: "0.7em" }}
         >
-          <Button variant="outlined" onClick={toggleDarkMode}>
-            {darkMode ? <DarkModeIcon /> : <LightModeIcon />}
-          </Button>
-          <Button variant="outlined" onClick={() => setOpenDialog(true)}>
-            <SettingsIcon />
-          </Button>
-
-          <Button
-            variant="outlined"
-            endIcon={isOpen && <EastIcon />}
-            onClick={toggleDrawer}
+          <Tooltip title={usersOnline()}>
+            <Button variant="outlined">
+              <PeopleIcon />
+              <Badge
+                sx={{ marginBottom: "1.2em", marginLeft: "0.5em" }}
+                badgeContent={users ? users.length : null}
+                color="primary"
+              ></Badge>
+            </Button>
+          </Tooltip>
+          <Tooltip
+            title={darkMode ? "Turn on the lights!" : "Turn off the lights!"}
           >
-            <CommentIcon />
-            <Badge
-              sx={{ marginBottom: "1.2em", marginLeft: "0.5em" }}
-              badgeContent={!isOpen ? newMessages.length : null}
-              color="warning"
-            ></Badge>
-          </Button>
+            <Button variant="outlined" onClick={toggleDarkMode}>
+              {darkMode ? <DarkModeIcon /> : <LightModeIcon />}
+            </Button>
+          </Tooltip>
+          <Tooltip title="Settings">
+            <Button variant="outlined" onClick={() => handleToggleDialog()}>
+              <SettingsIcon />
+            </Button>
+          </Tooltip>
+
+          <Tooltip title={isOpen ? "Close chat" : "Open chat"}>
+            <Button
+              variant="outlined"
+              endIcon={isOpen && <EastIcon />}
+              onClick={toggleDrawer}
+            >
+              <CommentIcon />
+              <Badge
+                sx={{ marginBottom: "1.2em", marginLeft: "0.5em" }}
+                badgeContent={!isOpen ? newMessages.length : null}
+                color="warning"
+              ></Badge>
+            </Button>
+          </Tooltip>
         </Stack>
       </AppBar>
 

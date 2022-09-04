@@ -1,3 +1,4 @@
+const e = require("express")
 const express = require("express")
 const path = require("path")
 const app = express()
@@ -157,12 +158,49 @@ function addUser(cid, socket, scid) {
 }
 
 const handleReaction = (message) => {
+  //foundMessage håller alla gamla reactions
+  //message håller i det nya reactions
+  //om message har ett cid som finns i foundmessage -> skriv över reactions från foundmessage till message
+  //och uppdatera den gamla reaktion med nya emoji
+
+  //keeps all old reactions
   const foundMessage = broadcastedMessagesList.find(
     (old) => old.srvAckMid === message.srvAckMid
   )
-  foundMessage.reactions = message.reactions
 
+  //new reaction
+  const newReaction = message.reactions[message.reactions.length - 1]
+
+  const foundOldReaction = foundMessage.reactions.find(
+    (old) => old.cid === newReaction.cid
+  )
+
+  if (foundOldReaction) {
+    message.reactions = foundMessage.reactions
+    const newReactionSameCid = message.reactions.find(
+      (reaction) => reaction.cid === newReaction.cid
+    )
+
+    newReactionSameCid.emoji = newReaction.emoji
+  }
+
+  foundMessage.reactions = message.reactions
   broadcastMessage(message)
+}
+
+const sendUsers = (cid, scid) => {
+  broadcastMessage({
+    requestedOnlineUsers: true,
+    onlineUsers: getListOfConnectedUsers(),
+    systemMessage: true,
+    rxDate: new Date(),
+    srvAck: true,
+    user: "",
+    text: "Amount of users changed",
+    userLeft: true,
+    cid: cid,
+    scid: scid,
+  })
 }
 
 function init() {
@@ -174,7 +212,7 @@ function init() {
       let parsedObject = JSON.parse(data)
 
       if (parsedObject.text === "/clear") {
-        console.log ("Clears message log")
+        console.log("Clears message log")
         cid = parsedObject.cid
         parsedObject.rxDate = new Date()
         parsedObject.srvAckMid = parsedObject.mid
@@ -186,7 +224,7 @@ function init() {
       }
 
       if (parsedObject.text === "/len") {
-        console.log ("cmd len")
+        console.log("cmd len")
         cid = parsedObject.cid
         parsedObject.rxDate = new Date()
         parsedObject.srvAckMid = parsedObject.mid
@@ -198,7 +236,7 @@ function init() {
       }
 
       if (parsedObject.text === "/help") {
-        console.log ("cmd help")
+        console.log("cmd help")
         cid = parsedObject.cid
         parsedObject.rxDate = new Date()
         parsedObject.srvAckMid = parsedObject.mid
@@ -217,10 +255,12 @@ function init() {
         cid = getLowestAvailableCid()
         sendCidRequestMessage(ws, cid, scid)
         addUser(cid, ws, scid)
+        sendUsers(cid, scid)
       } else if (parsedObject.haveCookieCid) {
         cid = parsedObject.cid
         console.log("Add user with existing cid " + parsedObject.cid)
         addUser(parsedObject.cid, ws, scid)
+        sendUsers(cid, scid)
       } else {
         cid = parsedObject.cid
         parsedObject.rxDate = new Date()
@@ -228,6 +268,7 @@ function init() {
         parsedObject.srvAck = true
         //parsedObject.user = "Player #" + parsedObject.cid
         broadcastMessage(parsedObject)
+        sendUsers(cid, scid)
       }
     })
 
@@ -245,6 +286,18 @@ function init() {
       removeUser(scid)
       console.log("User scid:" + scid + " left the chat")
       console.log({ connectedUsers })
+      broadcastMessage({
+        requestedOnlineUsers: true,
+        onlineUsers: getListOfConnectedUsers(),
+        systemMessage: true,
+        rxDate: new Date(),
+        srvAck: true,
+        user: "",
+        text: "Amount of users changed",
+        userLeft: true,
+        cid: cid,
+        scid: scid,
+      })
     })
 
     sendWelcomeMessage(ws)
