@@ -55,6 +55,6 @@ jobs:
           npm i
           pm2 start src/server.js
           sleep 5
-          pm2 logs --lines 200
+          pm2 logs --lines 100
           pm2 l
          
