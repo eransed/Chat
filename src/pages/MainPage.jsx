@@ -44,6 +44,7 @@ const MainPage = () => {
   const [notifyOthers, setNotifyOthers] = useState(false)
   const [newReactions, setNewReactions] = useState([])
   const [users, setUsers] = useState([])
+  const [myMessages, setMyMessages] = useState([])
   const [pageTitle, setPageTitle] = useState(document.title)
   const [play, { stop }] = useSound(ChatFx2)
 
@@ -76,6 +77,11 @@ const MainPage = () => {
     socket.addEventListener("message", (event) => {
       let msgObj = JSON.parse(event.data)
       console.log("msgObj ", msgObj)
+
+      if (msgObj.clearChat) {
+        setMessages([])
+      }
+
       if (msgObj.newReaction) {
         setNewReactions(msgObj)
         return
@@ -156,9 +162,6 @@ const MainPage = () => {
       })
 
       setMessages(update)
-      if (newReactions.cid !== clientId) {
-        playSound()
-      }
     }
   }, [newReactions, setNewReactions])
 
@@ -221,6 +224,10 @@ const MainPage = () => {
   }
 
   const handleMessageSubmit = (message) => {
+    setMyMessages((previous) => {
+      return [...previous, message]
+    })
+
     if (!message) {
       return
     }
@@ -228,6 +235,8 @@ const MainPage = () => {
     if (sock.readyState !== 1) {
       setSocketLost((oldVal) => !oldVal)
     }
+
+    const chatCommand = message.charAt(0) === "/"
 
     const messageObject = {
       reactions: [],
@@ -243,9 +252,14 @@ const MainPage = () => {
       thisIsMe: true,
       type: 1,
       user: userName ? userName : "Player #" + getCidFromCookie(),
+      chatCommand: chatCommand,
+      clearChat: false,
     }
 
-    addMessage(messageObject)
+    if (!chatCommand) {
+      addMessage(messageObject)
+    }
+
     sendMessage(messageObject)
   }
 
@@ -362,6 +376,7 @@ const MainPage = () => {
           setIsOpen={setIsOpen}
           clientId={clientId}
           handleReaction={handleReaction}
+          myMessages={myMessages}
         />
       </Grid>
     </>
