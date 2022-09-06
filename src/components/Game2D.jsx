@@ -19,10 +19,13 @@ function clearScreen(ctx) {
 
 let lastTime_ms
 
-function renderLoop(ctx, sender, renderFrameCallback, nextFrameCallback, cid) {
+function renderLoop(ctx, sender, renderFrameCallback, nextFrameCallback, cid, sync) {
   console.log("renderLoop")
   pic32lander.init(cid, ctx)
+
+  //real render-loop
   function update(time_ms) {
+    sync()
     clearScreen(ctx)
     renderFrameCallback(ctx)
     requestAnimationFrame(update)
@@ -35,8 +38,13 @@ function renderLoop(ctx, sender, renderFrameCallback, nextFrameCallback, cid) {
 
 function Game2D(props) {
   const game2DcanvasRef = useRef(null)
+  console.log (props.socket)
+  pic32lander.setSocket(props.socket)
 
   useEffect(() => {
+    if (props.cid === -1) {
+      return
+    }
     const canvas = game2DcanvasRef.current
     const context = canvas.getContext("2d")
 
@@ -50,9 +58,16 @@ function Game2D(props) {
       props.senderFunc,
       pic32lander.renderFrame,
       pic32lander.nextFrame,
-      props.cid
-    )
-  }, [props.senderFunc])
+      props.cid,
+      pic32lander.syncServer
+      )
+  }, [props.cid])
+
+  // useEffect( () => {
+
+
+
+  // }, [props.cid])
 
   return (
     <div style={{ textAlign: "center" }}>

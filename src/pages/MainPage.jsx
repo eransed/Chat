@@ -73,9 +73,25 @@ const MainPage = () => {
     return cid
   }
 
+  const handleChangeInGameState = (so_change) => {
+
+  }
+
+  const handleGameMessage = (obj) => {
+    if (obj.gameStateMessage) {
+
+      return true
+    }
+  }
+
   const addEventListeners = (socket) => {
     socket.addEventListener("message", (event) => {
       let msgObj = JSON.parse(event.data)
+
+      if (handleGameMessage(msgObj) === true) {
+        return
+      }
+
       console.log("msgObj ", msgObj)
 
       if (msgObj.clearChat) {
@@ -192,6 +208,7 @@ const MainPage = () => {
     })
   }
 
+  // send raw js obj...
   const sendMessage = (messageObject) => {
     sendWith(sock, messageObject)
   }
@@ -376,7 +393,7 @@ const MainPage = () => {
 
       <Grid container sx={{ overflow: "hidden" }}>
         <Grid item xs={12}>
-          {/* <Game2D id="aster1" cid={clientId}></Game2D> */}
+          {sock && clientId && <Game2D id="aster1" cid={clientId} socket={sock} ></Game2D>}
         </Grid>
         <Chat
           messages={messages}

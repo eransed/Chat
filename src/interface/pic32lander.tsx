@@ -3,6 +3,29 @@
 // Step to next animation frame with a nextFrame function
 
 
+
+// const host = new URL(window.location.href).hostname
+// const socket = new WebSocket("ws://" + host + ":5679")
+
+// // send raw js obj...
+// const sendMessage = (messageObject: any) => {
+//   sendWith(socket, messageObject)
+// }
+
+// const sendWith = (socket: any, messageObject: any) => {
+//   if (!socket) {
+//     console.error("socket is undefined")
+//     return
+//   }
+//   if (socket.readyState === 1) {
+//     socket.send(JSON.stringify(messageObject))
+//   } else {
+//     console.error("socket not open, readyState=" + socket.readyState)
+//   }
+// }
+
+
+
 function rndf(min: number, max: number) {
   return Math.random() * (max - min) + min
 }
@@ -765,12 +788,12 @@ function resetCollisions(spaceObjects: SpaceObject[]) {
 }
 
 
-const numberOfAsteroids: number = 50
+const numberOfAsteroids: number = 0
 let myShip: SpaceObject = createDefaultSpaceObject()
 let allSpaceObjects: SpaceObject[] = []
-
+let client: number = -1
 function init(cid: number, ctx: any) {
-
+  client = cid
   myShip.name = "Slayer" + cid
   myShip.shape = Shape.Ship
   myShip.health = 9000
@@ -833,6 +856,55 @@ function center(ctx: any) {
 
 let da: number = 0
 
+
+let skipSyncFrame: number = 0
+
+let socket: any;
+
+// send raw js obj...
+const sendMessage = (messageObject: any) => {
+  sendWith(socket, messageObject)
+}
+
+const sendWith = (socket: any, messageObject: any) => {
+  if (!socket) {
+    console.error("socket is undefined")
+    return
+  }
+  if (socket.readyState === 1) {
+    socket.send(JSON.stringify(messageObject))
+  } else {
+    console.error("socket not open, readyState=" + socket.readyState)
+  }
+}
+
+function setSocket(sock: any) {
+  console.log ("adding socket to game")
+  console.log (sock)
+  socket = sock
+  socket.addEventListener('message', function (event: any) {
+    // console.log ('message handled in game! by ' + client)
+    // console.log (JSON.parse(event.data))
+  })
+}
+
+function syncServer(skip_n: number = 30) {
+  
+  if (skipSyncFrame % skip_n === 0) {
+    skipSyncFrame++
+    return
+  }
+  skipSyncFrame = 0
+  for (let so of allSpaceObjects) {
+    sendMessage({spaceObject: so, gameStateMessage: true})
+  }
+
+}
+
+function handleNewStateFromServer (state: any) {
+  console.log({state})
+}
+
 function renderFrame(ctx: any) {
   for (let so of allSpaceObjects) {
     drawSpaceObject(so, ctx)
@@ -841,6 +913,8 @@ function renderFrame(ctx: any) {
   renderWatch(center(ctx), 100, ctx, da+=2)
 }
 
+
+// update game state
 function nextFrame(ctx: any) {
   const screen: Vec2d = { x: ctx.canvas.width, y: ctx.canvas.height }
   // const center: Vec2d = { x: ctx.canvas.width/2, y: ctx.canvas.height/2 }
@@ -866,6 +940,9 @@ function nextFrame(ctx: any) {
   }
   friction(myShip, 0.991)
 }
+
+
+
 
 function renderWatch(pos: Vec2d, size: number, ctx: any, da: number) {
   // save current state of the context
@@ -912,4 +989,7 @@ export const pic32lander = {
   nextFrame: nextFrame,
   init: init,
   round2dec: round2dec,
+  syncServer: syncServer,
+  setSocket: setSocket,
 }
+

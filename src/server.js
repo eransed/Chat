@@ -1,4 +1,4 @@
-const e = require("express")
+const gameServer = require('./gameServer')
 const express = require("express")
 const path = require("path")
 const app = express()
@@ -17,6 +17,7 @@ console.log(server_name + " running on node " + host_version)
 // some connected user did send a message. DateTime, UserID, message.
 // clients are a user with a UserID. OnMessageSent the client send a ws packet with messageData
 let connectedUsers = []
+
 
 function getListOfConnectedUsers() {
   let users = []
@@ -226,6 +227,9 @@ function init() {
 
     ws.on("message", function message(data) {
       let parsedObject = JSON.parse(data)
+      if (gameServer.handleGameState(data, ws, connectedUsers) === true) {
+        return
+      }
 
       if (parsedObject.chatCommand) {
         const firstChar = parsedObject.text.charAt(0)
@@ -355,6 +359,7 @@ function init() {
       })
     })
 
+
     sendWelcomeMessage(ws)
   })
 
@@ -372,6 +377,6 @@ app.get("/", function (req, res) {
 app.get('/version', (req, res) => {
   res.send(server_name)
 })
-
-app.listen(80)
-console.log ("Listening on port 80...")
+const httpPort = 80
+app.listen(httpPort)
+console.log (`Listening on port ${httpPort}...`)
