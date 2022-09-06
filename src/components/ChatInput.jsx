@@ -103,12 +103,14 @@ const ChatInput = ({ sendMessage, chatWidth, myMessages }) => {
           width: `${chatWidth}%`,
         }}
       >
-        <Recall
-          oldMsgNumber={oldMsgNumber}
-          myMessages={myMessages}
-          recallMsg={recallMsg}
-          handleSendMessage={handleSendMessage}
-        />
+        {myMessages && recallMsg && (
+          <Recall
+            oldMsgNumber={oldMsgNumber}
+            myMessages={myMessages}
+            recallMsg={recallMsg}
+            handleSendMessage={handleSendMessage}
+          />
+        )}
         <BottomNavigation style={{ justifyContent: "left" }}>
           <Box
             style={{

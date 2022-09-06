@@ -20,8 +20,7 @@ const Recall = ({ myMessages, recallMsg, handleSendMessage, oldMsgNumber }) => {
       <List
         sx={{
           padding: !recallMsg && "0 0 0 0 ",
-
-          overflow: "scroll",
+          overflow: "auto",
         }}
       >
         {myMessages &&
