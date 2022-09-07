@@ -1,39 +1,31 @@
-import React, {
-  MutableRefObject,
-  useRef,
-  useContext,
-  useState,
-  useEffect,
-} from "react"
+import React, { useRef, useContext, useState } from "react"
 
 //Material UI
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import CardHeader from "@mui/material/CardHeader"
+import CardActions from "@mui/material/CardActions"
 import Avatar from "@mui/material/Avatar"
-import Grow from "@mui/material/Grow"
+
+import AddReactionOutlinedIcon from "@mui/icons-material/AddReactionOutlined"
 
 //Reactions
 import {
   FacebookSelector,
-  FacebookCounter,
   FacebookCounterReaction,
-  SlackSelector,
-  SlackCounter,
-  SlackCounterGroup,
 } from "@charkour/react-reactions"
 
 //Interface
 import { msgObj } from "../interface/iMessages"
 
 import { SettingsContext } from "../contexts/settingsContext"
-import { Fade } from "@mui/material"
 
 const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
   const { showMyAvatar, toggleShowMyAvatar, userName, temporaryName } =
     useContext(SettingsContext)
   const [showReactionBar, setShowReactionBar] = useState(false)
-  const [reaction, setReaction] = useState([])
+  const [showReactionIcon, setShowReactionIcon] = useState(false)
+
   const [hoverReaction, setHoverReaction] = useState(false)
   const cardRef = useRef(null)
   const myMessage = msgObj.cid === clientId
@@ -65,8 +57,8 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
     return colorPicker[color > 10 ? 10 : color]
   }
 
-  const handleOnHover = (set) => {
-    setShowReactionBar(set)
+  const toggleReactionSelector = () => {
+    setShowReactionBar((previous) => !previous)
   }
 
   const handleChosenReaction = (value) => {
@@ -80,13 +72,8 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
     msgObj.reactions.push(reactionObj)
     msgObj.newReaction = true
 
-    //Enable if more reactions from one user
-    /*     setReaction((previous) => {
-      return [...previous, reactionObj]
-    }) */
-
     handleReaction(msgObj)
-    handleOnHover(false)
+    setShowReactionBar(false)
   }
 
   const hoverReactionElement = (username) => {
@@ -149,15 +136,13 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
   }
 
   return (
-    <>
-      <span
-        onMouseOver={() => handleOnHover(true)}
-        onMouseLeave={() => handleOnHover(false)}
-      >
+    <span sx={{ width: "fit-content" }}>
+      <span>
         <CardHeader
           sx={{
             padding: "0",
             opacity: "0.8",
+            width: "fit-content",
           }}
           subheaderTypographyProps={{ marginLeft: myMessage ? "" : "2.5em" }}
           subheader={
@@ -195,32 +180,74 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
             borderBottomRightRadius: myMessage ? "4px" : "18px",
           }}
         >
-          {showReactionBar && (
+          <CardContent style={{ width: "fit-content", padding: "12px" }}>
             <span
-              style={{
-                right: myMessage ? 0 : "",
-                display: "flex",
-                zIndex: "100",
-                position: "absolute",
-              }}
+              ref={cardRef}
+              style={{ wordBreak: "break-word", width: "fit-content" }}
             >
-              <FacebookSelector
-                iconSize={30}
-                style={{ width: "fit-content" }}
-                onSelect={(value) => handleChosenReaction(value)}
-              />
+              {msgObj.text}
             </span>
-          )}
-          <CardContent
-            ref={cardRef}
-            style={{ width: "fit-content", padding: "10px" }}
-          >
-            <span style={{ wordBreak: "break-word" }}>{msgObj.text}</span>
+            {showReactionBar && (
+              <span
+                style={
+                  myMessage
+                    ? {
+                        right: "2.5em",
+                        display: "flex",
+                        zIndex: "100",
+                        padding: "unset",
+                        margin: "unset",
+                        position: "absolute",
+                      }
+                    : {
+                        left: "3.5em",
+                        display: "flex",
+                        zIndex: "100",
+                        padding: "unset",
+                        margin: "unset",
+                        position: "absolute",
+                      }
+                }
+              >
+                <FacebookSelector
+                  iconSize={30}
+                  style={{ width: "fit-content" }}
+                  onSelect={(value) => handleChosenReaction(value)}
+                />
+              </span>
+            )}
           </CardContent>
         </Card>
       </span>
-      {reaction && reactionElement()}
-    </>
+
+      <CardActions
+        disableSpacing
+        onMouseDown={() => toggleReactionSelector()}
+        sx={{
+          //marginLeft: myMessage ? "" : textWidth,
+          position: "relative",
+          float: myMessage ? "right" : "left",
+          display: "flex",
+          padding: "unset",
+          marginRight: myMessage ? "" : "0.3em",
+          marginLeft: myMessage ? "0.3em" : "",
+        }}
+      >
+        <AddReactionOutlinedIcon
+          sx={{
+            opacity: showReactionIcon ? 1 : 0.5,
+            transition: "ease transform 0.5s",
+            transform: showReactionBar
+              ? `rotate(${myMessage ? "-1turn" : "1turn"})`
+              : `rotate(0turn)`,
+          }}
+          onMouseEnter={() => setShowReactionIcon(true)}
+          onMouseLeave={() => setShowReactionIcon(false)}
+        />
+      </CardActions>
+
+      {reactionElement()}
+    </span>
   )
 }
 
