@@ -104,8 +104,6 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
     setHoverReaction((previous) => !previous)
   }
 
-  console.log(chatWidth)
-
   const reactionElement = () => {
     if (msgObj.reactions) {
       return (

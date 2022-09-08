@@ -8,13 +8,6 @@ import ListItemButton from "@mui/material/ListItemButton"
 const Recall = ({ myMessages, recallMsg, handleSendMessage, oldMsgNumber }) => {
   const listRef = useRef(null)
 
-  /*   const scrollToListItem = () => listRef.current.scrollIntoView()
-
-  useEffect(() => {
-    myMessages && recallMsg && console.log("listREf useEffect")
-    myMessages && recallMsg && scrollToListItem()
-  }, [recallMsg, oldMsgNumber, myMessages]) */
-
   return (
     <Box sx={{ marginLeft: "1em" }}>
       <List
