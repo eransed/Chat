@@ -8,6 +8,7 @@ import CardActions from "@mui/material/CardActions"
 import Avatar from "@mui/material/Avatar"
 import Fade from "@mui/material/Fade"
 import Backdrop from "@mui/material/Backdrop"
+import CircularProgress from "@mui/material/CircularProgress"
 
 import AddReactionOutlinedIcon from "@mui/icons-material/AddReactionOutlined"
 
@@ -23,8 +24,13 @@ import { msgObj } from "../interface/iMessages"
 import { SettingsContext } from "../contexts/settingsContext"
 
 const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
-  const { showMyAvatar, toggleShowMyAvatar, userName, temporaryName } =
-    useContext(SettingsContext)
+  const {
+    showMyAvatar,
+    toggleShowMyAvatar,
+    userName,
+    temporaryName,
+    chatWidth,
+  } = useContext(SettingsContext)
   const [showReactionBar, setShowReactionBar] = useState(false)
   const [hoverReactionIcon, setHoverReactionIcon] = useState(false)
   const [showCardActions, setShowCardActions] = useState(false)
@@ -69,6 +75,7 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
       by: userName ? userName : temporaryName,
       cid: clientId,
       color: userColor(),
+      srvAck: false,
     }
 
     msgObj.reactions.push(reactionObj)
@@ -97,6 +104,8 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
     setHoverReaction((previous) => !previous)
   }
 
+  console.log(chatWidth)
+
   const reactionElement = () => {
     if (msgObj.reactions) {
       return (
@@ -123,12 +132,16 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
                       transition: "ease margin 0.3s",
                     }}
                   >
-                    <FacebookCounterReaction
-                      key={index}
-                      reaction={reaction.emoji}
-                      bg={"#fff"}
-                      variant={"facebook"}
-                    />
+                    {reaction.srvAck ? (
+                      <FacebookCounterReaction
+                        key={index}
+                        reaction={reaction.emoji}
+                        bg={"#fff"}
+                        variant={"facebook"}
+                      />
+                    ) : (
+                      <CircularProgress size={16} thickness={10} />
+                    )}
                   </span>
                   {hoverReaction && hoverReactionElement(reaction.by)}
                 </span>
@@ -247,7 +260,7 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
             )}
           </CardContent>
         </Card>
-        {showCardActions && (
+        {(showCardActions || chatWidth === 100) && (
           <CardActions
             disableSpacing
             sx={{
