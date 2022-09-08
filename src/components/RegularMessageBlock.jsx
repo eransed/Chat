@@ -6,6 +6,8 @@ import CardContent from "@mui/material/CardContent"
 import CardHeader from "@mui/material/CardHeader"
 import CardActions from "@mui/material/CardActions"
 import Avatar from "@mui/material/Avatar"
+import Fade from "@mui/material/Fade"
+import Backdrop from "@mui/material/Backdrop"
 
 import AddReactionOutlinedIcon from "@mui/icons-material/AddReactionOutlined"
 
@@ -24,8 +26,8 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
   const { showMyAvatar, toggleShowMyAvatar, userName, temporaryName } =
     useContext(SettingsContext)
   const [showReactionBar, setShowReactionBar] = useState(false)
-  const [showReactionIcon, setShowReactionIcon] = useState(false)
-
+  const [hoverReactionIcon, setHoverReactionIcon] = useState(false)
+  const [showCardActions, setShowCardActions] = useState(false)
   const [hoverReaction, setHoverReaction] = useState(false)
   const cardRef = useRef(null)
   const myMessage = msgObj.cid === clientId
@@ -98,89 +100,109 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
   const reactionElement = () => {
     if (msgObj.reactions) {
       return (
-        <span
-          style={{
-            float: myMessage ? "right" : "left",
-            zoom: 1.5,
-            width: "fit-content",
-          }}
-        >
+        <Fade in timeout={500}>
           <span
-            style={{ display: "flex", width: "fit-content" }}
-            onPointerDown={() => toggleHoverReactions()}
+            style={{
+              float: myMessage ? "right" : "left",
+              zoom: 1.5,
+              width: "fit-content",
+              cursor: "pointer",
+            }}
           >
-            {msgObj.reactions.map((reaction, index) => (
-              <span key={index} style={{ display: "flex", direction: "row" }}>
-                <span
-                  style={{
-                    marginRight: hoverReaction ? "0.3em" : "",
-                    marginLeft: hoverReaction ? "0.3em" : "",
-                    width: "fit-content",
-                    transition: "ease margin 0.3s",
-                  }}
-                >
-                  <FacebookCounterReaction
-                    key={index}
-                    reaction={reaction.emoji}
-                    bg={"#fff"}
-                    variant={"facebook"}
-                  />
+            <span
+              style={{ display: "flex", width: "fit-content" }}
+              onPointerDown={() => toggleHoverReactions()}
+            >
+              {msgObj.reactions.map((reaction, index) => (
+                <span key={index} style={{ display: "flex", direction: "row" }}>
+                  <span
+                    style={{
+                      marginRight: hoverReaction ? "0.3em" : "",
+                      marginLeft: hoverReaction ? "0.3em" : "0.15em",
+                      width: "fit-content",
+                      transition: "ease margin 0.3s",
+                    }}
+                  >
+                    <FacebookCounterReaction
+                      key={index}
+                      reaction={reaction.emoji}
+                      bg={"#fff"}
+                      variant={"facebook"}
+                    />
+                  </span>
+                  {hoverReaction && hoverReactionElement(reaction.by)}
                 </span>
-                {hoverReaction && hoverReactionElement(reaction.by)}
-              </span>
-            ))}
+              ))}
+            </span>
           </span>
-        </span>
+        </Fade>
       )
     }
   }
 
   return (
-    <span sx={{ width: "fit-content" }}>
-      <span>
-        <CardHeader
+    <div
+      sx={{ width: "fit-content" }}
+      onMouseEnter={() => setShowCardActions(true)}
+      onMouseLeave={() => setShowCardActions(false)}
+    >
+      <CardHeader
+        sx={{
+          padding: "0",
+          opacity: "0.8",
+          width: "fit-content",
+        }}
+        subheaderTypographyProps={{ marginLeft: myMessage ? "" : "2.5em" }}
+        subheader={
+          msgObj.user + " - " + (msgObj.srvAck ? "" : "*") + messageDate
+        }
+      />
+
+      {(showMyAvatar || !myMessage) && (
+        <Avatar
           sx={{
-            padding: "0",
-            opacity: "0.8",
-            width: "fit-content",
+            float: myMessage ? "right" : "left",
+            width: avatarSettings.size,
+            height: avatarSettings.size,
+            marginTop: avatarSettings.margin,
+            marginRight: myMessage ? "" : avatarSettings.margin,
+            marginLeft: myMessage ? avatarSettings.margin : "",
+            fontSize: avatarSettings.fontSize,
+            bgcolor: userColor(),
+            color: "#fff",
           }}
-          subheaderTypographyProps={{ marginLeft: myMessage ? "" : "2.5em" }}
-          subheader={
-            msgObj.user + " - " + (msgObj.srvAck ? "" : "*") + messageDate
-          }
-        />
-
-        {(showMyAvatar || !myMessage) && (
-          <Avatar
-            sx={{
-              float: myMessage ? "right" : "left",
-              width: avatarSettings.size,
-              height: avatarSettings.size,
-              marginTop: avatarSettings.margin,
-              marginRight: myMessage ? "" : avatarSettings.margin,
-              marginLeft: myMessage ? avatarSettings.margin : "",
-              fontSize: avatarSettings.fontSize,
-              bgcolor: userColor(),
-              color: "#fff",
-            }}
-          >
-            {Array.from(msgObj.user)[0]}
-            {Array.from(msgObj.user)[msgObj.user.length - 1]}
-          </Avatar>
-        )}
-
+        >
+          {Array.from(msgObj.user)[0]}
+          {Array.from(msgObj.user)[msgObj.user.length - 1]}
+        </Avatar>
+      )}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: myMessage ? "row-reverse" : "row",
+        }}
+      >
         <Card
           style={{
             width: "fit-content",
-            backgroundColor: myMessage ? "rgb(212, 168, 140)" : "#E4E6EB",
-            color: myMessage ? "#fff" : "#000",
             textAlign: "left",
             borderRadius: "18px",
+
+            backgroundColor: "unset",
             borderBottomLeftRadius: myMessage ? "18px" : "4px",
             borderBottomRightRadius: myMessage ? "4px" : "18px",
           }}
+          elevation={0}
         >
-          <CardContent style={{ width: "fit-content", padding: "12px" }}>
+          <CardContent
+            style={{
+              width: "fit-content",
+              padding: "12px",
+
+              backgroundColor: myMessage ? "rgb(212, 168, 140)" : "#E4E6EB",
+              color: myMessage ? "#fff" : "#000",
+            }}
+          >
             <span
               ref={cardRef}
               style={{ wordBreak: "break-word", width: "fit-content" }}
@@ -192,62 +214,69 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
                 style={
                   myMessage
                     ? {
-                        right: "2.5em",
+                        right: "2.6em",
                         display: "flex",
-                        zIndex: "100",
+                        zIndex: "1",
                         padding: "unset",
                         margin: "unset",
                         position: "absolute",
                       }
                     : {
-                        left: "3.5em",
+                        left: "3.8em",
                         display: "flex",
-                        zIndex: "100",
+                        zIndex: "1",
                         padding: "unset",
                         margin: "unset",
                         position: "absolute",
                       }
                 }
               >
-                <FacebookSelector
-                  iconSize={30}
-                  style={{ width: "fit-content" }}
-                  onSelect={(value) => handleChosenReaction(value)}
-                />
+                <Backdrop
+                  open={showReactionBar}
+                  sx={{ zIndex: 2, backgroundColor: "transparent" }}
+                  onPointerDown={() => setShowReactionBar(false)}
+                ></Backdrop>
+                <span style={{ zIndex: 1000 }}>
+                  <FacebookSelector
+                    iconSize={30}
+                    style={{ width: "fit-content" }}
+                    onSelect={(value) => handleChosenReaction(value)}
+                  />
+                </span>
               </span>
             )}
           </CardContent>
         </Card>
-      </span>
-
-      <CardActions
-        disableSpacing
-        onMouseDown={() => toggleReactionSelector()}
-        sx={{
-          //marginLeft: myMessage ? "" : textWidth,
-          position: "relative",
-          float: myMessage ? "right" : "left",
-          display: "flex",
-          padding: "unset",
-          marginRight: myMessage ? "" : "0.3em",
-          marginLeft: myMessage ? "0.3em" : "",
-        }}
-      >
-        <AddReactionOutlinedIcon
-          sx={{
-            opacity: showReactionIcon ? 1 : 0.5,
-            transition: "ease transform 0.5s",
-            transform: showReactionBar
-              ? `rotate(${myMessage ? "-1turn" : "1turn"})`
-              : `rotate(0turn)`,
-          }}
-          onMouseEnter={() => setShowReactionIcon(true)}
-          onMouseLeave={() => setShowReactionIcon(false)}
-        />
-      </CardActions>
+        {showCardActions && (
+          <CardActions
+            disableSpacing
+            sx={{
+              //marginLeft: myMessage ? "" : textWidth,
+              position: "relative",
+              float: myMessage ? "right" : "left",
+              display: "flex",
+              backgroundColor: "unset",
+            }}
+          >
+            <AddReactionOutlinedIcon
+              onMouseDown={() => toggleReactionSelector()}
+              sx={{
+                opacity: hoverReactionIcon ? 1 : 0.5,
+                transition: "ease transform 0.5s",
+                transform: showReactionBar
+                  ? `rotate(${myMessage ? "-1turn" : "1turn"})`
+                  : `rotate(0turn)`,
+                cursor: "pointer",
+              }}
+              onMouseEnter={() => setHoverReactionIcon(true)}
+              onMouseLeave={() => setHoverReactionIcon(false)}
+            />
+          </CardActions>
+        )}
+      </div>
 
       {reactionElement()}
-    </span>
+    </div>
   )
 }
 
