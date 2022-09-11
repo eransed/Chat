@@ -4,9 +4,10 @@ const path = require("path")
 const app = express()
 
 const ws = require("ws")
-const PORT = 5678
+const WS_PORT = 5678
+const HTTP_PORT = 80
 const wss = new ws.WebSocketServer({
-  port: PORT,
+  port: WS_PORT,
 })
 const app_version = require("../package.json").version
 const app_name = require("../package.json").name
@@ -376,5 +377,12 @@ app.get("/version", (req, res) => {
   res.send(server_name)
 })
 
-app.listen(80)
-console.log("Listening on port 80...")
+try {
+  app.listen(HTTP_PORT)
+  console.log(`http on port ${HTTP_PORT}...`)
+  console.log(`ws on port ${WS_PORT}...`)
+
+} catch (e) {
+  console.log(`Error: could not listen on port ${HTTP_PORT}`)
+  console.log(e)
+}
