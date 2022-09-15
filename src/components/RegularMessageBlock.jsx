@@ -130,7 +130,7 @@ const RegularMessageBlock = ({ msgObj, clientId, handleReaction }) => {
                       transition: "ease margin 0.3s",
                     }}
                   >
-                    {reaction.srvAck ? (
+                    {reaction.srvAck === true ? (
                       <FacebookCounterReaction
                         key={index}
                         reaction={reaction.emoji}

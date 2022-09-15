@@ -8,13 +8,7 @@ import Input from "@mui/material/Input"
 import SendIcon from "@mui/icons-material/Send"
 import Button from "@mui/material/Button"
 import Stack from "@mui/material/Stack"
-import List from "@mui/material/List"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemIcon from "@mui/material/ListItemIcon"
-import ListItemText from "@mui/material/ListItemText"
-
-//Components
-import Recall from "./Recall"
+import MobileStepper from "@mui/material/MobileStepper"
 
 const ChatInput = ({ sendMessage, chatWidth, myMessages }) => {
   const [oldMsgNumber, setOldMsgNumber] = useState(0)
@@ -100,14 +94,25 @@ const ChatInput = ({ sendMessage, chatWidth, myMessages }) => {
           position: "fixed",
           bottom: 0,
           width: `${chatWidth}%`,
+          backgroundColor: "transparent",
         }}
       >
-        <Recall
-          oldMsgNumber={oldMsgNumber}
-          myMessages={myMessages}
-          recallMsg={recallMsg}
-          handleSendMessage={handleSendMessage}
-        />
+        {recallMsg && (
+          <>
+            <MobileStepper
+              variant={myMessages.length > 30 ? "progress" : "dots"}
+              steps={myMessages.length}
+              activeStep={oldMsgNumber}
+              position="static"
+              sx={{
+                flexGrow: 1,
+                width: myMessages.length > 30 ? "180%" : "100%",
+                backgroundColor: "transparent",
+              }}
+            />
+          </>
+        )}
+
         <BottomNavigation style={{ justifyContent: "left" }}>
           <Box
             style={{
