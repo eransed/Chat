@@ -35,7 +35,9 @@ const MessageCard = ({ msgObj, clientId, handleReaction }) => {
       )}
       {/* If not system message or a chat command it counts as a regular message */}
       {!systemMessage && !commandLine && (
-        <CardContent style={{ fontSize: "1em", marginLeft: "1em" }}>
+        <CardContent
+          style={{ fontSize: "1em", marginLeft: "1em", width: "fit-content" }}
+        >
           <RegularMessageBlock
             style={{ alignContent: "right" }}
             msgObj={msgObj}

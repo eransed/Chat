@@ -171,6 +171,8 @@ const handleReaction = (message) => {
   //new reaction
   const newReaction = message.reactions[message.reactions.length - 1]
 
+  newReaction.srvAck = true
+
   const foundOldReaction = foundMessage.reactions.find(
     (old) => old.cid === newReaction.cid
   )
@@ -182,6 +184,7 @@ const handleReaction = (message) => {
     )
 
     newReactionSameCid.emoji = newReaction.emoji
+    newReactionSameCid.srvAck = true
   }
 
   foundMessage.reactions = message.reactions
@@ -369,9 +372,9 @@ app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "../build", "index.html"))
 })
 
-app.get('/version', (req, res) => {
+app.get("/version", (req, res) => {
   res.send(server_name)
 })
 
 app.listen(80)
-console.log ("Listening on port 80...")
+console.log("Listening on port 80...")

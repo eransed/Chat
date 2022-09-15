@@ -72,7 +72,6 @@ const ChatInput = ({ sendMessage, chatWidth, myMessages }) => {
   useEffect(() => {
     if (myMessages.length > -1 && recallMsg) {
       ref.current.value = myMessages[oldMsgNumber]
-      console.log(myMessages[oldMsgNumber])
     }
   }, [oldMsgNumber, setOldMsgNumber])
 
