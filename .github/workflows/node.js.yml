@@ -49,6 +49,7 @@ jobs:
         port: ${{ secrets.DO1_SSH_PORT }}
         script: |
           cd chat
+          git reset --hard
           git pull
           npm i
           pm2 start src/server.js
